@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Test on E6D0's Blog</title><link>https://chrono460.github.io/categories/test/</link><description>Recent content in Test on E6D0's Blog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 24 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://chrono460.github.io/categories/test/index.xml" rel="self" type="application/rss+xml"/><item><title>MathJax Test</title><link>https://chrono460.github.io/p/mathjax-test/</link><pubDate>Fri, 24 Oct 2025 00:00:00 +0000</pubDate><guid>https://chrono460.github.io/p/mathjax-test/</guid><description>&lt;h2 id="2-latex-math-formula-test"&gt;2. LaTeX Math Formula Test
+&lt;/h2&gt;&lt;p&gt;The FixIt theme has built-in support for mathematical formulas (usually implemented via KaTeX or MathJax). We have enabled it by setting &lt;code&gt;math: enable: true&lt;/code&gt; in the header (Front Matter) of this article.&lt;/p&gt;
+&lt;h3 id="inline-formulas"&gt;Inline Formulas
+&lt;/h3&gt;&lt;p&gt;You can embed formulas within paragraph text.&lt;/p&gt;
+&lt;p&gt;For example: The famous mass-energy equivalence is $E = mc^2$, and Euler&amp;rsquo;s identity is $e^{i\pi} + 1 = 0$.&lt;/p&gt;
+&lt;h3 id="block-formulas"&gt;Block Formulas
+&lt;/h3&gt;&lt;p&gt;For complex formulas, they are usually displayed centered on their own line.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Gaussian Integral:&lt;/strong&gt;&lt;/p&gt;
+$$
+\int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
+$$&lt;p&gt;&lt;strong&gt;Matrix Example:&lt;/strong&gt;&lt;/p&gt;
+$$
+A = \begin{bmatrix}
+a &amp; b \\
+c &amp; d
+\end{bmatrix}
+$$&lt;p&gt;&lt;strong&gt;Multi-line Equation Alignment:&lt;/strong&gt;&lt;/p&gt;
+$$
+\begin{aligned}
+f(x) &amp;= (x+a)(x+b) \\
+&amp;= x^2 + (a+b)x + ab
+\end{aligned}
+$$&lt;hr&gt;
+&lt;h2 id="3-image-test"&gt;3. Image Test
+&lt;/h2&gt;&lt;p&gt;Images are an important part of a blog.&lt;/p&gt;
+&lt;h3 id="method-a-using-network-image-links"&gt;Method A: Using Network Image Links
+&lt;/h3&gt;&lt;p&gt;This is the simplest way, directly referencing an external URL. Below is a random image from Unsplash:&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://source.unsplash.com/random/800x400/?landscape"
+loading="lazy"
+alt="Example Network Image"
+&gt;
+&lt;em&gt;Caption: This is a network image&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id="method-b-using-local-images-important"&gt;Method B: Using Local Images (Important!)
+&lt;/h3&gt;&lt;p&gt;There are usually two best practices for using local images in Hugo. For convenience, we will first introduce the simplest one: the &lt;strong&gt;&lt;code&gt;static&lt;/code&gt; directory method&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Steps:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;In your project root directory, find or create a folder named &lt;code&gt;static&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Create an &lt;code&gt;images&lt;/code&gt; folder inside &lt;code&gt;static&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Upload one of your images (e.g., &lt;code&gt;my-cat.jpg&lt;/code&gt;) to the &lt;code&gt;static/images/&lt;/code&gt; directory.&lt;/li&gt;
+&lt;li&gt;Use the following syntax to reference it in the article (note the path starts with &lt;code&gt;/&lt;/code&gt; and &lt;strong&gt;does not include&lt;/strong&gt; &lt;code&gt;static&lt;/code&gt;):&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;We want to reference an emoji in the current folder:&lt;/p&gt;
+&lt;figure id="fig-emoji" class="auto-number-figure"&gt;
+&lt;img src="https://chrono460.github.io/p/mathjax-test/random.jpg"
+alt="Random Emoji"
+style="width: 20%; display: block; margin: 0 auto;"&gt;&lt;figcaption style="text-align: center; color: #888; font-size: 0.9em; margin-top: 10px;"&gt;
+Random Emoji
+&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;p&gt;As shown in &lt;a class="link" href="#fig-emoji" &gt;Figure 1&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Interactive demo presentation:
+&lt;div class="demo-collapsible" style="margin: 20px 0; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: #fff;"&gt;
+&lt;div id="trigger-demo-b2a429-j91at6"
+style="padding: 15px 20px; cursor: pointer; background: #f9f9f9; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s;"&gt;
+&lt;div style="font-weight: bold; color: #333; display: flex; align-items: center;"&gt;
+&lt;span id="icon-demo-b2a429-j91at6" style="display: inline-block; transition: transform 0.2s; margin-right: 8px;"&gt;▶&lt;/span&gt;
+Physical Lighting
+&lt;/div&gt;
+&lt;div id="status-demo-b2a429-j91at6" style="font-size: 0.85em; color: #666;"&gt;
+[ 点击展开 ]
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="container-demo-b2a429-j91at6" style="width: 100%; height: 0; transition: height 0.3s ease; overflow: hidden;"&gt;
+&lt;/div&gt;
+&lt;script&gt;
+(function() {
+var trigger = document.getElementById('trigger-demo-b2a429-j91at6');
+var container = document.getElementById('container-demo-b2a429-j91at6');
+var icon = document.getElementById('icon-demo-b2a429-j91at6');
+var status = document.getElementById('status-demo-b2a429-j91at6');
+var src = "\/demos\/pbr.html";
+var height = "500px";
+var isOpen = false;
+function forceCleanup(iframe) {
+try {
+if (!iframe || !iframe.contentWindow) return;
+var win = iframe.contentWindow;
+var doc = iframe.contentDocument;
+var highestId = win.requestAnimationFrame(function(){});
+for (var i = 0; i &lt;= highestId; i++) {
+win.cancelAnimationFrame(i);
+}
+var canvases = doc.querySelectorAll('canvas');
+canvases.forEach(function(canvas) {
+var gl = canvas.getContext('webgl2') ||
+canvas.getContext('webgl') ||
+canvas.getContext('experimental-webgl');
+if (gl) {
+var ext = gl.getExtension('WEBGL_lose_context');
+if (ext) ext.loseContext();
+}
+});
+} catch (e) {
+console.warn('[Demo Cleanup] 跨域限制或清理失败:', e);
+}
+}
+if (trigger) {
+trigger.addEventListener('click', function() {
+isOpen = !isOpen;
+if (isOpen) {
+container.style.height = height;
+setTimeout(function() {
+container.innerHTML = '&lt;iframe src="' + src + '" width="100%" height="100%" style="border:none; display:block;" allowfullscreen&gt;&lt;/iframe&gt;';
+}, 10);
+icon.style.transform = "rotate(90deg)";
+trigger.style.background = "#f0f0f0";
+status.innerText = "[ 点击折叠并销毁 ]";
+status.style.color = "#d32f2f";
+} else {
+var iframe = container.querySelector('iframe');
+if (iframe) forceCleanup(iframe);
+container.innerHTML = '';
+container.style.height = "0";
+icon.style.transform = "rotate(0deg)";
+trigger.style.background = "#f9f9f9";
+status.innerText = "[ 点击展开 ]";
+status.style.color = "#666";
+}
+});
+} else {
+console.error("找不到 ID 为 trigger-demo-b2a429-j91at6 的元素");
+}
+})();
+&lt;/script&gt;
+&lt;/div&gt;&lt;/p&gt;
+$$
+\varphi = 1+\frac{1} {1+\frac{1} {1+\frac{1} {1+\cdots} } }
+$$&lt;p&gt;Testing automatic numbering:
+&lt;/p&gt;
+$$
+\begin{equation}
+E = mc^2 \label{eq:energy}
+\end{equation}
+$$&lt;p&gt;Referencing formula \eqref{eq:energy}.&lt;/p&gt;
+&lt;p&gt;Hugo is very fast&lt;sup id="fnref:1"&gt;&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref"&gt;1&lt;/a&gt;&lt;/sup&gt;. The Stack theme is very beautiful&lt;sup id="fnref:2"&gt;&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref"&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;div class="footnotes" role="doc-endnotes"&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;Steve Francia. &amp;ldquo;Hugo Docs&amp;rdquo;. &lt;a class="link" href="https://gohugo.io" target="_blank" rel="noopener"
+&gt;https://gohugo.io&lt;/a&gt;&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink"&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;CaiJimmy. &amp;ldquo;Stack Theme&amp;rdquo;. &lt;a class="link" href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener"
+&gt;https://github.com/CaiJimmy/hugo-theme-stack&lt;/a&gt;&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink"&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description></item></channel></rss>
