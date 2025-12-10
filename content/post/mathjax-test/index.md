@@ -1,8 +1,8 @@
 ---
-title: "MathJax 测试"
+title: "MathJax Test"
 date: 2025-10-24
 image: 
-description: 测试公式编号
+description: Testing formula numbering
 categories:
     - Test
 tags:
@@ -10,27 +10,27 @@ tags:
 math: true
 ---
 
-## 2. LaTeX 数学公式测试
+## 2. LaTeX Math Formula Test
 
-FixIt 主题内置了对数学公式的支持（通常通过 KaTeX 或 MathJax 实现）。我们在本文的头部（Front Matter）已经设置了 `math: enable: true` 来启用它。
+The FixIt theme has built-in support for mathematical formulas (usually implemented via KaTeX or MathJax). We have enabled it by setting `math: enable: true` in the header (Front Matter) of this article.
 
-### 行内公式 (Inline)
+### Inline Formulas
 
-你可以将公式嵌入在段落文本中。
+You can embed formulas within paragraph text.
 
-例如：著名的质能方程是 $E = mc^2$，欧拉恒等式是 $e^{i\pi} + 1 = 0$。
+For example: The famous mass-energy equivalence is $E = mc^2$, and Euler's identity is $e^{i\pi} + 1 = 0$.
 
-### 块级公式 (Block)
+### Block Formulas
 
-对于复杂的公式，通常使其独占一行居中显示。
+For complex formulas, they are usually displayed centered on their own line.
 
-**高斯积分：**
+**Gaussian Integral:**
 
 $$
 \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
 $$
 
-**矩阵示例：**
+**Matrix Example:**
 
 $$
 A = \begin{bmatrix}
@@ -39,7 +39,7 @@ c & d
 \end{bmatrix}
 $$
 
-**多行公式对齐：**
+**Multi-line Equation Alignment:**
 
 $$
 \begin{aligned}
@@ -50,52 +50,51 @@ $$
 
 ---
 
-## 3. 图片测试
+## 3. Image Test
 
-图片是博客的重要组成部分。
+Images are an important part of a blog.
 
-### 方式 A：使用网络图片链接
+### Method A: Using Network Image Links
 
-这是最简单的方式，直接引用一个外部 URL。下面是一张来自 Unsplash 的随机图片：
+This is the simplest way, directly referencing an external URL. Below is a random image from Unsplash:
 
-![示例网络图片](https://source.unsplash.com/random/800x400/?landscape)
-*图注：这是一张网络图片*
+![Example Network Image](https://source.unsplash.com/random/800x400/?landscape)
+*Caption: This is a network image*
 
-### 方式 B：使用本地图片 (重要!)
+### Method B: Using Local Images (Important!)
 
-在 Hugo 中使用本地图片通常有两种最佳实践。为了方便起见，我们先介绍最简单的一种：**`static` 目录法**。
+There are usually two best practices for using local images in Hugo. For convenience, we will first introduce the simplest one: the **`static` directory method**.
 
-**操作步骤：**
+**Steps:**
 
-1. 在你的项目根目录下，找到或创建一个名为 `static` 的文件夹。
-2. 在 `static` 里面再创建一个 `images` 文件夹。
-3. 将你的一张图片（比如 `my-cat.jpg`）上传到 `static/images/` 目录中。
-4. 在文章中使用下面的语法引用它（注意路径以 `/` 开头，并且**不包含** `static`）：
+1. In your project root directory, find or create a folder named `static`.
+2. Create an `images` folder inside `static`.
+3. Upload one of your images (e.g., `my-cat.jpg`) to the `static/images/` directory.
+4. Use the following syntax to reference it in the article (note the path starts with `/` and **does not include** `static`):
 
-我们要引用当前文件夹里的emoji：
+We want to reference an emoji in the current folder:
 
-{{< image src="random.jpg" caption="随机表情包" id="fig-emoji" width="20%" >}}
+{{< image src="random.jpg" caption="Random Emoji" id="fig-emoji" width="20%" >}}
 
-如 [图 1](#fig-emoji) 所示。
+As shown in [Figure 1](#fig-emoji).
 
-可交互demo演示：
-{{< demo-collapsible src="/demos/pbr.html" height="500px" title="物理光照">}}
+Interactive demo presentation:
+{{< demo-collapsible src="/demos/pbr.html" height="500px" title="Physical Lighting">}}
 
 $$
 \varphi = 1+\frac{1} {1+\frac{1} {1+\frac{1} {1+\cdots} } } 
 $$
 
-测试自动编号：
+Testing automatic numbering:
 $$
 \begin{equation}
   E = mc^2 \label{eq:energy}
 \end{equation}
 $$
 
+Referencing formula \eqref{eq:energy}.
 
-引用公式 \eqref{eq:energy}.
-
-Hugo 非常快[^hugo]。Stack 主题很好看[^stack]。
+Hugo is very fast[^hugo]. The Stack theme is very beautiful[^stack].
 
 [^hugo]: Steve Francia. "Hugo Docs". https://gohugo.io
 [^stack]: CaiJimmy. "Stack Theme". https://github.com/CaiJimmy/hugo-theme-stack
