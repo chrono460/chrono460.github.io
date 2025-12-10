@@ -134,7 +134,7 @@ category = "General"
 categoryID = "DIC_kwDOQmVeBM4Czoa0"
 mapping = "pathname"
 lightTheme = "light"
-darkTheme = "dark"
+darkTheme = "dark_dimmed"
 reactionsEnabled = 1
 emitMetadata = 0
 
