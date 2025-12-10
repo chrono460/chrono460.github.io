@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于物理的光照与相机模拟 (PBR & Camera Physics)</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            pointer-events: none;
+            border-left: 4px solid #4caf50;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .value-display { font-family: monospace; color: #81c784; font-weight: bold; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- 信息面板 -->
+    <div id="info">
+        <h3>物理光照实验室</h3>
+        <div>曝光值 (EV100): <span id="ev-display" class="value-display">--</span></div>
+        <div>计算曝光补偿: <span id="exp-display" class="value-display">--</span></div>
+        <div style="margin-top: 10px; font-size: 12px; color: #aaa;">
+            已校准为室内影棚参数。<br>
+            如画面太暗，请提高 ISO 或降低快门速度。
+        </div>
+    </div>
+
+    <!-- 导入 Three.js 和相关库 (使用 ESM 模块) -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
+        import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+        import GUI from 'three/addons/libs/lil-gui.module.min.js';
+
+        // ==========================================
+        // 1. 初始化场景与渲染器
+        // ==========================================
+        
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111111);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 2, 5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        
+        // --- 关键物理设置 ---
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // 软阴影
+        renderer.toneMapping = THREE.ACESFilmicToneMapping; // 电影级色调映射，模拟胶片感光
+        renderer.useLegacyLights = false; // 确保使用物理正确的光照计算模式
+        
+        document.body.appendChild(renderer.domElement);
+
+        // 轨道控制器
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.target.set(0, 0.5, 0);
+
+        // ==========================================
+        // 2. 构建场景内容 (材质与物体)
+        // ==========================================
+
+        // 纹理生成器 (避免加载外部图片)
+        function createGridTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#222'; //稍微暗一点的地面，突出主体
+            ctx.fillRect(0, 0, 1024, 1024);
+            ctx.fillStyle = '#333';
+            // 绘制网格
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    if ((i+j)%2 === 0) ctx.fillRect(i*128, j*128, 128, 128);
+                }
+            }
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(4, 4);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            return texture;
+        }
+
+        // 地面材质 (PBR)
+        const floorMaterial = new THREE.MeshStandardMaterial({
+            map: createGridTexture(),
+            roughness: 0.8,
+            metalness: 0.1
+        });
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // 主体物体 (球体 + 环形结)
+        const mainMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.2,
+            metalness: 0.8, // 高金属度以反射光线
+        });
+        
+        const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), mainMaterial);
+        sphere.position.set(0, 0.5, 0);
+        sphere.castShadow = true;
+        sphere.receiveShadow = true;
+        scene.add(sphere);
+
+        const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(0.3, 0.1, 100, 16), mainMaterial);
+        torusKnot.position.set(1.5, 0.5, 0);
+        torusKnot.castShadow = true;
+        torusKnot.receiveShadow = true;
+        scene.add(torusKnot);
+
+        // 参照物：粗糙石膏像 (模拟漫反射)
+        const plasterMaterial = new THREE.MeshStandardMaterial({
+            color: 0xeeeeee,
+            roughness: 0.9,
+            metalness: 0.0
+        });
+        const box = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), plasterMaterial);
+        box.position.set(-1.5, 0.3, 0);
+        box.castShadow = true;
+        box.receiveShadow = true;
+        scene.add(box);
+
+        // ==========================================
+        // 3. 物理光源系统
+        // ==========================================
+
+        // A. 环境光 (HemisphereLight) - 模拟天空光
+        const hemiLight = new THREE.HemisphereLight(0xddeeff, 0x0f0e0d, 0.02);
+        scene.add(hemiLight);
+
+        // B. 主光源 (SpotLight) - 模拟摄影棚灯
+        // 物理单位: 在 useLegacyLights=false 时，SpotLight 强度单位为 流明 (Lumens)
+        // 调整：从 3000 提升到 12000 流明，模拟强力影棚灯
+        const mainLight = new THREE.SpotLight(0xffffee, 12000); 
+        mainLight.position.set(3, 4, 3);
+        mainLight.angle = Math.PI / 5; // 稍微放宽一点角度
+        mainLight.penumbra = 0.3;
+        mainLight.decay = 2; // 物理衰减
+        mainLight.distance = 20;
+        mainLight.castShadow = true;
+        mainLight.shadow.bias = -0.0001;
+        mainLight.shadow.mapSize.width = 2048;
+        mainLight.shadow.mapSize.height = 2048;
+        scene.add(mainLight);
+
+        // 光源辅助线
+        const spotLightHelper = new THREE.SpotLightHelper(mainLight);
+        scene.add(spotLightHelper);
+
+        // C. 补光灯 (PointLight) - 模拟台灯/灯泡
+        // 物理单位: PointLight 强度单位为 坎德拉 (Candela)
+        // 调整：从 100 提升到 800cd
+        const pointLight = new THREE.PointLight(0xffaa00, 800, 10); 
+        pointLight.position.set(-2, 1, 2);
+        pointLight.castShadow = true;
+        pointLight.decay = 2;
+        scene.add(pointLight);
+
+        const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.2);
+        scene.add(pointLightHelper);
+
+
+        // ==========================================
+        // 4. 相机物理与曝光计算逻辑
+        // ==========================================
+
+        const cameraParams = {
+            aperture: 4.0,     // 光圈 f/4.0 (比5.6大一级)
+            shutterSpeed: 60,  // 快门速度 (1/60 秒)
+            iso: 800,          // ISO 800 (室内常用，比100高三挡)
+            exposureCompensation: 0 // 曝光补偿 EV
+        };
+
+        const lightingParams = {
+            mainLightPower: 12000, // Lumens
+            mainLightTemp: 6500,  // 色温 (K)
+            mainLightAngle: 36,   // Degree
+            fillLightInt: 800,    // Candela
+            ambientInt: 0.02
+        };
+
+        const debugParams = {
+            helpers: true,
+            autoRotate: false
+        };
+
+        // 更新曝光函数
+        function updateExposure() {
+            // 1. 计算 EV100 (ISO 100 下的曝光值)
+            // 公式: EV = log2(N^2 / t)
+            // N = 光圈, t = 快门时间 (1/shutterSpeed)
+            const t = 1.0 / cameraParams.shutterSpeed;
+            const ev100 = Math.log2((cameraParams.aperture * cameraParams.aperture) / t);
+            
+            // 2. 结合当前 ISO 计算最终 EV
+            // EV_final = EV100 - log2(ISO / 100)
+            const evFinal = ev100 - Math.log2(cameraParams.iso / 100);
+
+            // 3. 应用曝光补偿
+            const evTotal = evFinal - cameraParams.exposureCompensation;
+
+            // 4. 将 EV 转换为 Three.js 曝光系数
+            // 标准近似公式: exposure = 1 / (1.2 * 2^EV)
+            // 校准说明：由于物理光照单位数值较大，曝光系数通常会很小（如 0.001）
+            const exposure = 1.0 / (1.2 * Math.pow(2, evTotal));
+
+            renderer.toneMappingExposure = exposure;
+
+            // 更新 UI 显示
+            document.getElementById('ev-display').innerText = evTotal.toFixed(2);
+            document.getElementById('exp-display').innerText = exposure.toFixed(5);
+        }
+
+        // 简单的色温转换 (Kelvin -> Hex)
+        function kelvinToHex(k) {
+            // 简化算法
+            let r, g, b;
+            k = k / 100;
+            if (k <= 66) {
+                r = 255;
+                g = k < 6 ? 0 : 99.47 * Math.log(k) - 161.11;
+                b = k <= 19 ? 0 : 138.51 * Math.log(k - 10) - 305.04;
+            } else {
+                r = 329.69 * Math.pow(k - 60, -0.133);
+                g = 288.12 * Math.pow(k - 60, -0.0755);
+                b = 255;
+            }
+            return new THREE.Color(`rgb(${Math.max(0,Math.min(255,r))|0}, ${Math.max(0,Math.min(255,g))|0}, ${Math.max(0,Math.min(255,b))|0})`);
+        }
+
+        // ==========================================
+        // 5. GUI 控制面板构建
+        // ==========================================
+
+        const gui = new GUI({ title: '物理光照控制台' });
+
+        // --- 相机参数 ---
+        const camFolder = gui.addFolder('📷 物理相机设置 (Camera)');
+        
+        camFolder.add(cameraParams, 'iso', [100, 200, 400, 800, 1600, 3200, 6400]).name('ISO 感光度').onChange(updateExposure);
+        
+        camFolder.add(cameraParams, 'aperture', [1.4, 2.0, 2.8, 4.0, 5.6, 8.0, 11, 16, 22]).name('光圈 (f-stop)').onChange(updateExposure);
+        
+        // 自定义快门速度显示
+        const shutterSpeeds = { 
+            "1/8000": 8000, "1/4000": 4000, "1/2000": 2000, "1/1000": 1000, 
+            "1/500": 500, "1/250": 250, "1/125": 125, "1/60": 60, "1/30": 30, 
+            "1/15": 15, "1/8": 8, "1/4": 4, "1/2": 2, "1s": 1 
+        };
+        camFolder.add(cameraParams, 'shutterSpeed', shutterSpeeds).name('快门速度').onChange(updateExposure);
+        
+        camFolder.add(cameraParams, 'exposureCompensation', -3, 3, 0.3).name('曝光补偿 (EV)').onChange(updateExposure);
+
+        // --- 光照参数 ---
+        const lightFolder = gui.addFolder('💡 光源参数 (Lights)');
+        
+        // 主光
+        const mainLFolder = lightFolder.addFolder('主光源 (SpotLight)');
+        mainLFolder.add(lightingParams, 'mainLightPower', 0, 50000).name('光通量 (Lumens)').onChange(v => {
+            mainLight.power = v; // SpotLight 使用 power (lumens)
+        });
+        mainLFolder.add(lightingParams, 'mainLightTemp', 2000, 10000).name('色温 (K)').onChange(v => {
+            mainLight.color = kelvinToHex(v);
+        });
+        mainLFolder.add(lightingParams, 'mainLightAngle', 5, 90).name('光束角 (Deg)').onChange(v => {
+            mainLight.angle = v * (Math.PI / 180);
+            spotLightHelper.update();
+        });
+        mainLFolder.add(mainLight.position, 'x', -10, 10).name('位置 X').onChange(() => spotLightHelper.update());
+        mainLFolder.add(mainLight.position, 'y', 0, 10).name('位置 Y').onChange(() => spotLightHelper.update());
+        mainLFolder.add(mainLight.position, 'z', -10, 10).name('位置 Z').onChange(() => spotLightHelper.update());
+
+        // 补光
+        const fillLFolder = lightFolder.addFolder('补光灯 (PointLight)');
+        fillLFolder.add(lightingParams, 'fillLightInt', 0, 2000).name('发光强度 (Candela)').onChange(v => {
+            pointLight.intensity = v; // PointLight 默认使用 candela
+        });
+        fillLFolder.addColor({ color: pointLight.color.getHex() }, 'color').name('颜色').onChange(v => pointLight.color.setHex(v));
+        fillLFolder.add(pointLight.position, 'x', -5, 5).name('位置 X');
+        fillLFolder.add(pointLight.position, 'y', 0, 5).name('位置 Y');
+        fillLFolder.add(pointLight.position, 'z', -5, 5).name('位置 Z');
+
+        // 环境光
+        lightFolder.add(lightingParams, 'ambientInt', 0, 2).name('环境光强度').onChange(v => hemiLight.intensity = v);
+
+        // --- 材质参数 ---
+        const matFolder = gui.addFolder('💎 材质属性 (Material)');
+        matFolder.add(mainMaterial, 'roughness', 0, 1).name('中心球体粗糙度');
+        matFolder.add(mainMaterial, 'metalness', 0, 1).name('中心球体金属度');
+        matFolder.addColor({ color: mainMaterial.color.getHex() }, 'color').name('中心球体颜色').onChange(v => mainMaterial.color.setHex(v));
+        
+        // --- 调试与系统 ---
+        const debugFolder = gui.addFolder('⚙️ 调试与设置');
+        debugFolder.add(debugParams, 'helpers').name('显示辅助线').onChange(v => {
+            spotLightHelper.visible = v;
+            pointLightHelper.visible = v;
+        });
+        debugFolder.add(debugParams, 'autoRotate').name('自动旋转相机');
+        debugFolder.add(renderer, 'toneMapping', {
+            'No ToneMapping': THREE.NoToneMapping,
+            'Linear': THREE.LinearToneMapping,
+            'Reinhard': THREE.ReinhardToneMapping,
+            'Cineon': THREE.CineonToneMapping,
+            'ACES Filmic (推荐)': THREE.ACESFilmicToneMapping
+        }).name('色调映射算法').onChange(() => {
+            // 需要重新触发材质更新
+            scene.traverse(obj => {
+                if(obj.material) obj.material.needsUpdate = true;
+            });
+        });
+
+        camFolder.open();
+        lightFolder.open();
+
+        // ==========================================
+        // 6. 渲染循环与交互
+        // ==========================================
+
+        // 初始化一次曝光
+        updateExposure();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (debugParams.autoRotate) {
+                controls.autoRotate = true;
+                controls.update();
+            } else {
+                controls.autoRotate = false;
+            }
+
+            // 更新辅助线位置
+            spotLightHelper.update();
+            pointLightHelper.update();
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // 窗口大小自适应
+        window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>

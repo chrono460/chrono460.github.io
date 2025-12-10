@@ -1,0 +1,39 @@
+{{- $src := .Get "src" -}}
+{{- $width := .Get "width" | default "100%" -}}
+{{- $height := .Get "height" | default "500px" -}}
+{{- $title := .Get "title" | default "Interactive Demo" -}}
+{{- $preview := .Get "preview" -}} {{- $id := substr (md5 $src) 0 8 -}} <div class="demo-wrapper" style="margin: 20px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  
+  <div id="container-{{ $id }}" style="width: {{ $width }}; height: {{ $height }}; position: relative; background: #f0f0f0;">
+    
+    {{- if $preview -}}
+      <div class="demo-placeholder" 
+           onclick="loadDemo_{{ $id }}()"
+           style="cursor: pointer; width: 100%; height: 100%; background-image: url('{{ $preview }}'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; position: relative;">
+        
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.3);"></div>
+        
+        <div style="z-index: 1; color: white; text-align: center; border: 2px solid white; padding: 10px 20px; border-radius: 30px; background: rgba(0,0,0,0.5); transition: 0.3s;">
+          ▶ 点击运行 3D 演示<br>
+          <span style="font-size: 0.8em; opacity: 0.8;">(可能会消耗较多性能)</span>
+        </div>
+      </div>
+    {{- else -}}
+      <iframe src="{{ $src }}" width="100%" height="100%" style="border:none;" loading="lazy" allowfullscreen></iframe>
+    {{- end -}}
+
+  </div>
+
+  <div style="text-align: center; background: #f7f7f7; padding: 5px; font-size: 0.8em; color: #666;">
+    <a href="{{ $src }}" target="_blank">🡵 全屏打开 {{ $title }}</a>
+  </div>
+
+  {{- if $preview -}}
+  <script>
+    function loadDemo_{{ $id }}() {
+      var container = document.getElementById('container-{{ $id }}');
+      container.innerHTML = '<iframe src="{{ $src }}" width="100%" height="100%" style="border:none;" allowfullscreen></iframe>';
+    }
+  </script>
+  {{- end -}}
+</div>

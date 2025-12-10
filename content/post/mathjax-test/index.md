@@ -78,6 +78,9 @@ $$
 
 如 [图 1](#fig-emoji) 所示。
 
+可交互demo演示：
+{{< demo-collapsible src="/demos/pbr.html" height="500px" title="物理光照">}}
+
 $$
 \varphi = 1+\frac{1} {1+\frac{1} {1+\frac{1} {1+\cdots} } } 
 $$

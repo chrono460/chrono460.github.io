@@ -1,0 +1,108 @@
+{{- $src := .Get "src" -}}
+{{- $title := .Get "title" | default "Three.js 演示" -}}
+{{- $height := .Get "height" | default "500px" -}}
+{{- $width := .Get "width" | default "100%" -}}
+{{- /* 生成更强壮的唯一 ID：结合源码哈希 + 随机字符串 */ -}}
+{{- $random := delimit (shuffle (split "abcdefghijklmnopqrstuvwxyz0123456789" "")) "" -}}
+{{- $id := printf "demo-%s-%s" (substr (md5 $src) 0 6) (substr $random 0 6) -}}
+
+<div class="demo-collapsible" style="margin: 20px 0; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: #fff;">
+    
+    <div id="trigger-{{ $id }}" 
+         style="padding: 15px 20px; cursor: pointer; background: #f9f9f9; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s;">
+        <div style="font-weight: bold; color: #333; display: flex; align-items: center;">
+            <span id="icon-{{ $id }}" style="display: inline-block; transition: transform 0.2s; margin-right: 8px;">▶</span>
+            {{ $title }}
+        </div>
+        <div id="status-{{ $id }}" style="font-size: 0.85em; color: #666;">
+            [ 点击展开 ]
+        </div>
+    </div>
+
+    <div id="container-{{ $id }}" style="width: {{ $width }}; height: 0; transition: height 0.3s ease; overflow: hidden;">
+        </div>
+
+    <script>
+        (function() {
+            // 获取当前组件的 DOM 元素
+            var trigger = document.getElementById('trigger-{{ $id }}');
+            var container = document.getElementById('container-{{ $id }}');
+            var icon = document.getElementById('icon-{{ $id }}');
+            var status = document.getElementById('status-{{ $id }}');
+            
+            // 配置参数
+            var src = "{{ $src }}";
+            var height = "{{ $height }}";
+            var isOpen = false;
+
+            // === 核心清理函数 ===
+            function forceCleanup(iframe) {
+                try {
+                    if (!iframe || !iframe.contentWindow) return;
+                    var win = iframe.contentWindow;
+                    var doc = iframe.contentDocument;
+
+                    // 1. 暴力停止 requestAnimationFrame
+                    var highestId = win.requestAnimationFrame(function(){});
+                    for (var i = 0; i <= highestId; i++) {
+                        win.cancelAnimationFrame(i);
+                    }
+
+                    // 2. 强制丢失 WebGL 上下文
+                    var canvases = doc.querySelectorAll('canvas');
+                    canvases.forEach(function(canvas) {
+                        var gl = canvas.getContext('webgl2') || 
+                                 canvas.getContext('webgl') || 
+                                 canvas.getContext('experimental-webgl');
+                        if (gl) {
+                            var ext = gl.getExtension('WEBGL_lose_context');
+                            if (ext) ext.loseContext();
+                        }
+                    });
+                } catch (e) {
+                    console.warn('[Demo Cleanup] 跨域限制或清理失败:', e);
+                }
+            }
+
+            // === 绑定点击事件 (最稳的方式) ===
+            if (trigger) {
+                trigger.addEventListener('click', function() {
+                    isOpen = !isOpen;
+
+                    if (isOpen) {
+                        // 展开状态
+                        container.style.height = height;
+                        // 延迟 10ms 插入 iframe，让高度动画更顺滑
+                        setTimeout(function() {
+                            container.innerHTML = '<iframe src="' + src + '" width="100%" height="100%" style="border:none; display:block;" allowfullscreen></iframe>';
+                        }, 10);
+                        
+                        icon.style.transform = "rotate(90deg)";
+                        trigger.style.background = "#f0f0f0";
+                        status.innerText = "[ 点击折叠并销毁 ]";
+                        status.style.color = "#d32f2f";
+                    } else {
+                        // 折叠状态
+                        var iframe = container.querySelector('iframe');
+                        
+                        // 先清理
+                        if (iframe) forceCleanup(iframe);
+
+                        // 再移除 HTML (彻底销毁)
+                        container.innerHTML = '';
+                        
+                        // 收起高度
+                        container.style.height = "0";
+                        
+                        icon.style.transform = "rotate(0deg)";
+                        trigger.style.background = "#f9f9f9";
+                        status.innerText = "[ 点击展开 ]";
+                        status.style.color = "#666";
+                    }
+                });
+            } else {
+                console.error("找不到 ID 为 trigger-{{ $id }} 的元素");
+            }
+        })();
+    </script>
+</div>
