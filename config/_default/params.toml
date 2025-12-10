@@ -81,8 +81,11 @@ provider = "disqus"
 
 [comments.disqus]
 shortname = "chrono460"
+
+[comments.disqusjs]
+shortname = ""
 apiUrl = ""
-apiKey = "95TLwShPWNTccIdWMfLhDtZTwrq858lZFOzpnLw76lsL00fvfFY5NpI0AuCjQUuF"
+apiKey = ""
 admin = ""
 adminLabel = ""
 
