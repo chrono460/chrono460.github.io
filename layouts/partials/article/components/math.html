@@ -1,0 +1,14 @@
+<script>
+  window.MathJax = {
+    tex: {
+      tags: 'ams',  // 'ams' 开启 \begin{equation} 自动编号; 'all' 开启所有 $$ 编号
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>

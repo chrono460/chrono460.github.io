@@ -1,0 +1,26 @@
+{{- $src := .Get "src" -}}
+{{- $caption := .Get "caption" -}}
+{{- $id := .Get "id" -}}
+{{- $width := .Get "width" | default "100%" -}}
+
+{{- /* 核心升级逻辑开始 */ -}}
+{{- /* 1. 尝试在当前文章文件夹(Bundle)中查找匹配的图片资源 */ -}}
+{{- $image := .Page.Resources.GetMatch $src -}}
+
+{{- /* 2. 如果找到了(是本地图片)，就获取它的相对链接 */ -}}
+{{- if $image -}}
+    {{- $src = $image.RelPermalink -}}
+{{- end -}}
+{{- /* 核心升级逻辑结束 */ -}}
+
+<figure id="{{ $id }}" class="auto-number-figure">
+    <img src="{{ $src }}" 
+         alt="{{ $caption }}" 
+         style="width: {{ $width }}; display: block; margin: 0 auto;">
+    
+    {{- if $caption -}}
+    <figcaption style="text-align: center; color: #888; font-size: 0.9em; margin-top: 10px;">
+        {{ $caption }}
+    </figcaption>
+    {{- end -}}
+</figure>

@@ -1,0 +1,8 @@
+<style>
+  article { counter-reset: figureCounter; }
+  figure.auto-number-figure figcaption::before {
+    counter-increment: figureCounter;
+    content: "Figure " counter(figureCounter) ": ";
+    font-weight: bold;
+  }
+</style>
