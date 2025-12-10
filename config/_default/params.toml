@@ -79,10 +79,10 @@ enabled = true
 enabled = true
 provider = "disqus"
 
-[comments.disqusjs]
+[comments.disqus]
 shortname = "chrono460"
 apiUrl = ""
-apiKey = ""
+apiKey = "95TLwShPWNTccIdWMfLhDtZTwrq858lZFOzpnLw76lsL00fvfFY5NpI0AuCjQUuF"
 admin = ""
 adminLabel = ""
 
